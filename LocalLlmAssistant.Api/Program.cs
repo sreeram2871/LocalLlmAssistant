@@ -6,35 +6,84 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ============================================================
+// CORS
+// ============================================================
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Angular", policy =>
     {
         policy
             .WithOrigins(
+                // Local Angular
                 "http://localhost:4200",
-                "http://localhost:4201")
+                "http://localhost:4201"
+
+            // IMPORTANT:
+            // After Render gives you the actual Angular URL,
+            // add it here:
+            //
+            // "https://YOUR-WEB-URL.onrender.com"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .WithExposedHeaders("X-Chat-Id");
     });
 });
 
+
+// ============================================================
+// Controllers
+// ============================================================
+
 builder.Services.AddControllers();
+
+
+// ============================================================
+// LLM configuration
+// ============================================================
 
 builder.Services.Configure<LlmOptions>(
     builder.Configuration.GetSection("Llm"));
 
-builder.Services.AddHttpClient<ILlmService, OllamaLlmService>();
+
+// ============================================================
+// Ollama HTTP client
+// ============================================================
+
+builder.Services.AddHttpClient<
+    ILlmService,
+    OllamaLlmService>();
+
+
+// ============================================================
+// Conversation service
+// ============================================================
 
 builder.Services.AddSingleton<
     IConversationService,
     ConversationService>();
 
+
+// ============================================================
+// Problem Details
+// ============================================================
+
 builder.Services.AddProblemDetails();
+
+
+// ============================================================
+// Global exception handler
+// ============================================================
 
 builder.Services.AddExceptionHandler<
     GlobalExceptionHandler>();
+
+
+// ============================================================
+// Entity Framework Core / SQL Server
+// ============================================================
 
 builder.Services.AddDbContext<AppDbContext>(
     options =>
@@ -42,33 +91,99 @@ builder.Services.AddDbContext<AppDbContext>(
             builder.Configuration.GetConnectionString(
                 "DefaultConnection")));
 
+
+// ============================================================
+// Chat persistence
+// ============================================================
+
 builder.Services.AddScoped<
     IChatPersistenceService,
     ChatPersistenceService>();
+
+
+// ============================================================
+// Swagger
+// ============================================================
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
+
+// ============================================================
+// Build application
+// ============================================================
+
 var app = builder.Build();
+
+
+// ============================================================
+// CORS
+// IMPORTANT: Must be before MapControllers()
+// ============================================================
 
 app.UseCors("Angular");
 
+
+// ============================================================
+// Global exception handler
+// ============================================================
+
 app.UseExceptionHandler();
+
+
+// ============================================================
+// Swagger
+// ============================================================
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
+
     app.UseSwaggerUI();
 }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+
+// ============================================================
+// NOTE:
+//
+// Do NOT use:
+//
+// app.UseHttpsRedirection();
+//
+// Render terminates HTTPS at its edge and forwards
+// the request to your container over HTTP.
+// ============================================================
+
+
+// ============================================================
+// Authorization
+// ============================================================
 
 app.UseAuthorization();
 
+
+// ============================================================
+// Health check
+// ============================================================
+
+app.MapGet(
+    "/health",
+    () => Results.Ok(new
+    {
+        status = "Healthy"
+    }));
+
+
+// ============================================================
+// Controllers
+// ============================================================
+
 app.MapControllers();
+
+
+// ============================================================
+// Run
+// ============================================================
 
 app.Run();
