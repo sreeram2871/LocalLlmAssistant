@@ -1,0 +1,80 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #0a0b10;
+  overflow: hidden;
+}
+
+body {
+  position: relative;
+  perspective: 500px;
+  perspective-origin: 50% 35%;
+}
+
+
+/* =========================================================
+   PERSPECTIVE GRID FLOOR
+   ========================================================= */
+
+body::before {
+  content: "";
+  position: fixed;
+  left: -50%;
+  right: -50%;
+  bottom: -20%;
+  height: 140%;
+
+  background-image:
+    linear-gradient(rgba(79, 143, 194, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 143, 194, 0.35) 1px, transparent 1px);
+  background-size: 60px 60px;
+
+  transform: rotateX(78deg);
+  transform-origin: bottom center;
+
+  animation: grid-scroll 4s linear infinite;
+
+  z-index: -2;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HORIZON GLOW + FADE
+   (fades the grid into the dark background instead of a
+   hard cutoff, with a warm glow sitting on the horizon line)
+   ========================================================= */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background:
+    radial-gradient(ellipse 45% 22% at 50% 42%, rgba(217, 154, 78, 0.55), rgba(217, 154, 78, 0.15) 55%, transparent 75%),
+    linear-gradient(to bottom, #0a0b10 0%, transparent 25%, transparent 55%, #0a0b10 100%);
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+
+@keyframes grid-scroll {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 0 60px, 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path=".gitignore" />
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Project Path="LocalLlmAssistant.Api.Tests/LocalLlmAssistant.Api.Tests.csproj" Id="7fafd008-109d-43f9-a85f-8627fb77f100" />
+  <Project Path="LocalLlmAssistant.Api/LocalLlmAssistant.Api.csproj" />
+</Solution>

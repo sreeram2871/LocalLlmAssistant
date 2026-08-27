@@ -1,0 +1,474 @@
+<div class="chat-container">
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <header class="chat-header">
+
+    <h1>
+       C# Code Assistant
+    </h1>
+
+
+    <div class="header-actions">
+
+      <!-- =================================================
+           SETTINGS
+           ================================================= -->
+
+      <div class="settings-wrapper">
+
+        <button
+          class="settings-toggle-button"
+          type="button"
+          (click)="toggleSettings()">
+
+          ⚙ Settings
+
+        </button>
+
+
+        @if (showSettings()) {
+
+          <div class="settings-card">
+
+            <div class="settings-title">
+              Generation Settings
+            </div>
+
+
+            <!-- ============================
+                 MODEL
+                 ============================ -->
+
+            <div class="setting-row">
+
+              <label>
+                Model
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="model"
+                placeholder="llama3.2"
+              />
+
+            </div>
+
+
+            <!-- ============================
+                 TEMPERATURE
+                 ============================ -->
+
+            <div class="setting-row">
+
+              <div class="setting-label-container">
+
+                <label>
+                  Temperature
+                </label>
+
+                <span>
+                  {{ temperature }}
+                </span>
+
+              </div>
+
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                [(ngModel)]="temperature"
+              />
+
+            </div>
+
+
+            <!-- ============================
+                 TOP K
+                 ============================ -->
+
+            <div class="setting-row">
+
+              <div class="setting-label-container">
+
+                <label>
+                  Top-K
+                </label>
+
+                <span>
+                  {{ topK }}
+                </span>
+
+              </div>
+
+              <input
+                type="range"
+                min="1"
+                max="100"
+                step="1"
+                [(ngModel)]="topK"
+              />
+
+            </div>
+
+
+            <!-- ============================
+                 TOP P
+                 ============================ -->
+
+            <div class="setting-row">
+
+              <div class="setting-label-container">
+
+                <label>
+                  Top-P
+                </label>
+
+                <span>
+                  {{ topP }}
+                </span>
+
+              </div>
+
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.1"
+                [(ngModel)]="topP"
+              />
+
+            </div>
+
+
+            <!-- ============================
+                 MAX TOKENS
+                 ============================ -->
+
+            <div class="setting-row">
+
+              <div class="setting-label-container">
+
+                <label>
+                  Max Tokens
+                </label>
+
+                <span>
+                  {{ maxTokens }}
+                </span>
+
+              </div>
+
+              <input
+                type="range"
+                min="100"
+                max="4000"
+                step="100"
+                [(ngModel)]="maxTokens"
+              />
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- =================================================
+           METRICS
+           ================================================= -->
+
+      @if (metrics(); as metric) {
+
+        <div class="metrics-wrapper">
+
+          <button
+            class="metrics-toggle-button"
+            type="button"
+            (click)="toggleMetrics()">
+
+            Metrics
+
+          </button>
+
+
+          @if (showMetrics()) {
+
+            <div class="llm-metrics-card">
+
+              <div class="llm-metrics-title">
+                Generation Metrics
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Model
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.model }}
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Prompt tokens
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.promptTokens }}
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Output tokens
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.outputTokens }}
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Total time
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.totalSeconds.toFixed(2) }}
+                  sec
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Generation time
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.generationSeconds.toFixed(2) }}
+                  sec
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Generation speed
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.tokensPerSecond.toFixed(2) }}
+                  tokens/sec
+                </span>
+
+              </div>
+
+
+              <div class="llm-metrics-row">
+
+                <span class="llm-metrics-label">
+                  Load time
+                </span>
+
+                <span class="llm-metrics-value">
+                  {{ metric.loadSeconds.toFixed(2) }}
+                  sec
+                </span>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+
+      <!-- =================================================
+           NEW CHAT
+           ================================================= -->
+
+      <button
+        class="new-chat-button"
+        type="button"
+        (click)="newChat()"
+        [disabled]="isLoading()">
+
+        + New Chat
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- =====================================================
+       MESSAGES
+       ===================================================== -->
+
+  <main
+    #messagesContainer
+    class="messages">
+
+
+    <!-- =================================================
+         EMPTY STATE
+         ================================================= -->
+
+    @if (messages().length === 0) {
+
+      <div class="empty-state">
+
+        <h2>
+          How can I help you?
+        </h2>
+
+        <p>
+          Ask me anything about C#, .NET,
+          programming, or software development.
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- =================================================
+         CHAT MESSAGES
+         ================================================= -->
+
+    @for (
+      msg of messages();
+      track $index
+    ) {
+
+      <div
+        class="message"
+
+        [class.user-message]="
+          msg.role === 'user'
+        "
+
+        [class.assistant-message]="
+          msg.role === 'assistant'
+        ">
+
+
+        <!-- =============================================
+             ROLE
+             ============================================= -->
+
+        <div class="message-role">
+
+          {{
+            msg.role === 'user'
+              ? 'You'
+              : 'Assistant'
+          }}
+
+        </div>
+
+
+        <!-- =============================================
+             CONTENT
+             ============================================= -->
+
+        <div
+          class="message-content"
+          [innerHTML]="
+            renderMarkdown(msg.content)
+          ">
+        </div>
+
+      </div>
+
+    }
+
+  </main>
+
+
+
+  <!-- =====================================================
+       INPUT AREA
+       ===================================================== -->
+
+  <div class="input-area">
+
+    <input
+      type="text"
+
+      [(ngModel)]="message"
+
+      placeholder="Ask something..."
+
+      [disabled]="isLoading()"
+
+      (keyup.enter)="askQuestion()"
+    />
+
+
+    <!-- =================================================
+         STOP
+         ================================================= -->
+
+    @if (isLoading()) {
+
+      <button
+        class="stop-button"
+        type="button"
+        (click)="stopGeneration()">
+
+        Stop
+
+      </button>
+
+    }
+
+
+    <!-- =================================================
+         SEND
+         ================================================= -->
+
+    @else {
+
+      <button
+        class="send-button"
+        type="button"
+        (click)="askQuestion()">
+
+        Send
+
+      </button>
+
+    }
+
+  </div>
+
+</div>

@@ -1,0 +1,34 @@
+services:
+
+  api:
+    image: local-llm-assistant-api:latest
+    container_name: local-llm-assistant-api
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      Llm__BaseUrl: http://host.docker.internal:11434
+
+      ConnectionStrings__DefaultConnection: >-
+        Server=host.docker.internal,1433;
+        Database=LocalLlmAssistantDb;
+        User Id=local_llm_app;
+        Password=${SQL_PASSWORD};
+        TrustServerCertificate=True;
+        Encrypt=False
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  web:
+    image: local-llm-assistant-web:latest
+    container_name: local-llm-assistant-web
+
+    ports:
+      - "4201:80"
+
+    depends_on:
+      - api
