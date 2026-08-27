@@ -20,11 +20,11 @@ export interface LlmGenerationOptions {
 export class ChatService {
 
 private readonly apiUrl =
-  'http://localhost:8080/api/Chat';
+  'https://localllmassistant-web.onrender.com/api/Chat';
 
 
     private readonly chatsApiUrl =
-    'http://localhost:8080/api/Chats';
+    'https://localllmassistant-web.onrender.com/api/Chats';
 
     
 async streamMessage(

@@ -16,16 +16,9 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                // Local Angular
                 "http://localhost:4200",
-                "http://localhost:4201"
-
-            // IMPORTANT:
-            // After Render gives you the actual Angular URL,
-            // add it here:
-            //
-            // "https://YOUR-WEB-URL.onrender.com"
-            )
+                "http://localhost:4201",
+                "https://localllmassistant-web.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .WithExposedHeaders("X-Chat-Id");
